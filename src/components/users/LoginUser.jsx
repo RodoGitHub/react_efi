@@ -1,40 +1,42 @@
-import { useState, useEffect } from 'react';
-import { Field, ErrorMessage, Formik } from 'formik';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import { Formik, Field, ErrorMessage } from 'formik';
 import { Button } from 'primereact/button';
 import * as Yup from 'yup';
 
 const LoginUser = () => {
     const [message, setMessage] = useState('');
+    const navigate = useNavigate(); // Hook para redirigir
 
     const onLoginUser = async (values, resetForm) => {
         const bodyLoginUser = btoa(`${values.username}:${values.password}`);
         
         try {
-            const response = await fetch('http://127.0.0.1:5000/login', {
-                method: 'POST',
+            const response = await axios.post('http://127.0.0.1:5000/login', {}, {
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Basic ${bodyLoginUser}`
                 }
             });
-    
-            if (!response.ok) {
-                setMessage("Error en la solicitud: " + response.statusText);
-                return;
-            }
-    
-            const data = await response.json();
             
-            if (data.Token) {
-                localStorage.setItem('token', JSON.stringify(data.Token));
+            if (response.data.Token) {
+                localStorage.setItem('token', JSON.stringify(response.data.Token));
                 localStorage.setItem('username', values.username); // Guardar el nombre de usuario
+
                 setMessage("Login exitoso");
                 resetForm(); // Limpiar formulario después del login
+                
+                navigate('/bienvenida'); // Redirigir a la pantalla de bienvenida
             } else {
-                setMessage("Login fallido: " + data.Mensaje);
+                setMessage("Login fallido: " + response.data.Mensaje);
             }
         } catch (error) {
-            setMessage("Ocurrió un error: " + error.message);
+            if (error.response && error.response.status === 401) {
+                setMessage("Credenciales incorrectas. Por favor, verifica tu usuario y contraseña.");
+            } else {
+                setMessage("Ocurrió un error: " + error.message);
+            }
         }
     };
 
@@ -50,7 +52,6 @@ const LoginUser = () => {
 
     return (
         <Formik
-            
             initialValues={{ password: '', username: '' }}
             validationSchema={ValidationSchema}
             onSubmit={(values, { setSubmitting, resetForm }) => {
@@ -69,7 +70,7 @@ const LoginUser = () => {
                 isValid
             }) => (
                 <form onSubmit={handleSubmit}>
-                    <h1>Inicio Sesion</h1>
+                    <h1>Inicio Sesión</h1>
                     <div>
                         <input
                             type="text"
@@ -106,4 +107,3 @@ const LoginUser = () => {
 };
 
 export default LoginUser;
-

@@ -21,33 +21,38 @@ const CreateUser = () => {
 
   const RegisterUser = async (values, resetForm) => {
     const bodyRegisterUser = {
-      usuario: values.username,
-      contrasenia: values.password,
-      tipo: values.userType
+        usuario: values.username,
+        contrasenia: values.password,
+        tipo: values.userType
     };
 
     try {
-      const response = await fetch('http://localhost:5000/users', {
-        method: 'POST',
-        body: JSON.stringify(bodyRegisterUser),
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `${token}`,
-        
-        },
-      });
-      setMessage(response.data.Mensaje);
-      console.log(JSON.stringify(bodyRegisterUser))
-      if (!response.ok) {
-        throw new Error('Error al registrar el usuario');
-      }
+        const response = await fetch('http://localhost:5000/users', {
+            method: 'POST',
+            body: JSON.stringify(bodyRegisterUser),
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `${token}`,
+            },
+        });
 
+        const data = await response.json(); // Convertir la respuesta a JSON
+        console.log(JSON.stringify(bodyRegisterUser))
 
-      resetForm(); // Limpiar el formulario después de un envío exitoso
+        if (!response.ok) {
+            // Si la respuesta no es exitosa, muestra el mensaje de error del backend
+            setMessage(data.Mensaje || 'Error al registrar el usuario');
+            throw new Error(data.Mensaje || 'Error al registrar el usuario');
+        } else {
+            // Si la respuesta es exitosa
+            setMessage(data.Mensaje || 'Usuario registrado correctamente');
+            resetForm(); // Limpiar el formulario después de un envío exitoso
+        }
     } catch (error) {
-      setMessage('Error en el registro: ' + error.message); 
+        setMessage('Error en el registro: ' + error.message);
     }
   };
+
 
   const ValidationSchema = Yup.object().shape({
     username: Yup.string()

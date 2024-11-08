@@ -8,9 +8,7 @@ import LoginUser from './components/users/LoginUser';
 import CreateUser from './components/users/CreateUser';
 import CreateMarca from './components/marca/CreateMarca';
 import MarcaView from './components/marca/MarcaView';
-
-
-
+import Bienvenida from './components/Bienvenida';
 
 function App() {
   const [username, setUsername] = useState('');
@@ -22,12 +20,11 @@ function App() {
     }
   }, []);
 
-
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('username');
     setUsername(''); // Limpiar el estado de username
-    navigate('/inicio-sesion'); // Redirigir al inicio de sesión
+    window.location.href = '/inicio-sesion'; // Usar redirección en lugar de navigate
   };
 
   const items = [
@@ -39,7 +36,6 @@ function App() {
     { label: 'Login', icon: 'pi pi-user', url: '/inicio-sesion' }
   ];
 
-  
   const end = username ? (
     <div style={{ display: 'flex', alignItems: 'center' }}>
       <span style={{ marginRight: '10px' }}>Bienvenido, {username}</span>
@@ -62,6 +58,7 @@ function App() {
             <Route path="/nueva-marca" element={<CreateMarca />} />
             <Route path="/lista-marca" element={<MarcaView />} />
             <Route path="/inicio-sesion" element={<LoginUser />} />
+            <Route path="/bienvenida" element={<Bienvenida />} />
           </Routes>
         </div>
       </div>
@@ -71,3 +68,4 @@ function App() {
 }
 
 export default App;
+
