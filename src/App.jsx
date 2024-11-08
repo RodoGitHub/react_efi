@@ -6,6 +6,8 @@ import { Menubar } from 'primereact/menubar';
 import Home from './components/home';
 import LoginUser from './components/users/LoginUser'; 
 import CreateUser from './components/users/CreateUser';
+import CreateMarca from './components/marca/CreateMarca';
+import MarcaView from './components/marca/MarcaView';
 
 
 
@@ -32,6 +34,8 @@ function App() {
     { label: 'Home', icon: 'pi pi-home', url: '/' },
     { label: 'Lista usuarios', icon: 'pi pi-users', url: '/usuarios' },
     { label: 'Nuevo Usuario', icon: 'pi pi-user-plus', url: '/nuevo-usuario' },
+    { label: 'Nueva Marca', icon: 'pi pi-user-plus', url: '/nueva-marca' },
+    { label: 'Lista Marca', icon: 'pi pi-user-plus', url: '/lista-marca' },
     { label: 'Login', icon: 'pi pi-user', url: '/inicio-sesion' }
   ];
 
@@ -55,6 +59,8 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/usuarios" element={<UserContainer />} />
             <Route path="/nuevo-usuario" element={<CreateUser />} />
+            <Route path="/nueva-marca" element={<CreateMarca />} />
+            <Route path="/lista-marca" element={<MarcaView />} />
             <Route path="/inicio-sesion" element={<LoginUser />} />
           </Routes>
         </div>
