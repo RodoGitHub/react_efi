@@ -1,83 +1,163 @@
-import React, { useState, useEffect } from 'react';
+import React, { Fragment, useEffect, useState } from "react";
+import { ProgressSpinner } from "primereact/progressspinner";
+import { DataTable } from "primereact/datatable";
+import { Column } from "primereact/column";
+import { Button } from "primereact/button";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import { Formik, Field, ErrorMessage, Form } from "formik";
+import * as Yup from "yup";
 
-const MarcaView = () => {
-  const [marcas, setMarcas] = useState([]);
-  const [message, setMessage] = useState('');
-  const token = JSON.parse(localStorage.getItem('token'));
+const MarcaView = ({ data, loadingData }) => {
+    const activeMaras = data.filter((marca) => marca.activo);
+    const navigate = useNavigate();
+    const [message, setMessage] = useState("");
+    const [updatedMarcaData, setUpdatedMarcaData] = useState({
+        nombre: "",
+        marca_id: null
+    });
 
-  useEffect(() => {
-    // Función para obtener todas las marcas
-    const fetchMarcas = async () => {
-      try {
-        const response = await fetch('http://localhost:5000/marca', {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `${token}`,
-          },
-        });
-
-        if (!response.ok) {
-          throw new Error('Error al obtener las marcas');
+    useEffect(() => {
+        const token = JSON.parse(localStorage.getItem("token"));
+        if (!token) {
+            alert("Debe iniciar sesión para acceder a esta página.");
+            navigate("/inicio-sesion");
         }
+    }, [navigate]);
 
-        const data = await response.json();
-        setMarcas(data);
-      } catch (error) {
-        setMessage(`Error: ${error.message}`);
-      }
+    const ValidationSchema = Yup.object().shape({
+        nombre: Yup.string()
+            .min(3, 'El nombre de la marca debe tener al menos 3 caracteres')
+            .max(255, 'El nombre de la marca no debe exceder los 255 caracteres')
+            .required('El nombre de la marca es requerido'),
+    });
+
+    const handleSubmit = async (values, { setSubmitting }) => {
+        try {
+            const response = await handleEdit(values.marca_id, values);
+            if (response.status === 200) {
+                setMessage("Marca actualizada correctamente");
+                window.location.reload();
+            }
+        } catch (error) {
+            setMessage(error.message);
+            console.error("Error al actualizar la marca:", error);
+        }
+        setSubmitting(false);
     };
 
-    fetchMarcas();
-  }, [token]);
+    const handleEdit = async (marcaId, updatedData) => {
+        const token = JSON.parse(localStorage.getItem("token"));
+        const payload = { id: marcaId, ...updatedData };  // Cambiado a 'id' en lugar de 'marca_id'
+        
+        try {
+            const response = await axios.post(
+                "http://127.0.0.1:5000/marca/editar",
+                payload,
+                {
+                    headers: {
+                        Authorization: `${token}`, 
+                        "Content-Type": "application/json",
+                    },
+                }
+            );
+            return response;
+        } catch (error) {
+            if (error.response) {
+                throw new Error(error.response.data.Mensaje || "Error al procesar la solicitud");
+            } else {
+                throw new Error("Error al conectar con el servidor");
+            }
+        }
+    };    
 
-  // Función para activar una marca (cambiar 'activo' a true)
-  const activarMarca = async (id) => {
-    try {
-      const response = await fetch(`http://localhost:5000/marca/activar`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `${token}`,
-        },
-        body: JSON.stringify({ id, activo: true }),  // Enviar 'activo' como true
-      });
+    const handleDeactivate = async (marcaId) => {
+        const token = JSON.parse(localStorage.getItem("token"));
+        const payload = { marca_id: marcaId };
+    
+        try {
+            const response = await axios.post(
+                "http://127.0.0.1:5000/marca/deactivate",
+                payload,
+                {
+                    headers: {
+                        Authorization: `${token}`, 
+                        "Content-Type": "application/json",
+                    },
+                }
+            );
+            setMessage(response.data.Mensaje);
+            window.location.reload();
+        } catch (error) {
+            console.error("Error en la solicitud:", error);
+            if (error.response) {
+                setMessage(error.response.data.Mensaje);
+            } else {
+                setMessage("Error al conectar con el servidor");
+            }
+        }
+    };
 
-      if (!response.ok) {
-        throw new Error('Error al activar la marca');
-      }
+    const bodyActions = (rowData) => {
+        return (
+            <div>
+                <Button
+                    label="Editar"
+                    className="p-button-warning"
+                    onClick={() => setUpdatedMarcaData({
+                        marca_id: rowData.id,
+                        nombre: rowData.nombre,
+                    })}
+                />
+                <Button
+                    label="Borrar"
+                    className="p-button-danger"
+                    onClick={() => handleDeactivate(rowData.id)}
+                />
+            </div>
+        );
+    };
 
-      // Actualizar el estado para reflejar el cambio
-      setMarcas(marcas.map((marca) => 
-        marca.id === id ? { ...marca, activo: true } : marca
-      ));
-      setMessage('Marca activada exitosamente');
-    } catch (error) {
-      setMessage(`Error al activar la marca: ${error.message}`);
-    }
-  };
-
-  return (
-    <div>
-      <h1>Lista de Marcas</h1>
-      {message && <div style={{ color: message.includes('Error') ? 'red' : 'green' }}>{message}</div>}
-      <ul>
-        {marcas.map((marca) => (
-          <li key={marca.id} style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
-            <span style={{ flex: 1 }}>{marca.nombre}</span>
-            {!marca.activo && ( // Solo mostrar el botón si la marca no está activa
-              <button onClick={() => activarMarca(marca.id)} style={{ cursor: 'pointer', color: 'green' }}>
-                Activar
-              </button>
+    return (
+        <Fragment>
+            <h1>Marcas</h1>
+            {loadingData ? (
+                <ProgressSpinner />
+            ) : (
+                <DataTable value={activeMaras} tableStyle={{ minWidth: "50rem" }}>
+                    <Column field="nombre" header="Nombre" />
+                    <Column body={bodyActions} header="Acciones" />
+                </DataTable>
             )}
-            {marca.activo && (
-              <span style={{ color: 'green', marginLeft: '10px' }}>Activa</span>
+
+            {message && (
+                <div style={{ marginTop: "1rem", color: message.includes("Error") ? "red" : "green" }}>
+                    <p>{message}</p>
+                </div>
             )}
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
+
+            <div style={{ marginTop: "2rem" }}>
+                <h2>Editar Marca</h2>
+                <Formik
+                    initialValues={updatedMarcaData}
+                    enableReinitialize
+                    validationSchema={ValidationSchema}
+                    onSubmit={handleSubmit}
+                >
+                    {({ isSubmitting }) => (
+                        <Form>
+                            <div>
+                                <label>Nombre de Marca:</label>
+                                <Field type="text" name="nombre" />
+                                <ErrorMessage name="nombre" component="div" style={{ color: "red" }} />
+                            </div>
+                            <Button type="submit" label="Actualizar Marca" className="p-button-danger" disabled={isSubmitting} />
+                        </Form>
+                    )}
+                </Formik>
+            </div>
+        </Fragment>
+    );
 };
 
 export default MarcaView;
-
