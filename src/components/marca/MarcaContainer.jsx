@@ -1,4 +1,3 @@
-// MarcaContainer.js
 import React from "react";
 import MarcaView from "./MarcaView";
 import { useState, useEffect } from "react";
@@ -12,7 +11,7 @@ const MarcaContainer = () => {
         const fetchMarcas = async () => {
             try {
                 const token = JSON.parse(localStorage.getItem("token"));
-                const response = await axios.get("http://127.0.0.1:5000/marcas", {
+                const response = await axios.get("http://127.0.0.1:5000/marca", {
                     headers: {
                         Authorization: `${token}`,
                     },
