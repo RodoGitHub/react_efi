@@ -1,5 +1,3 @@
-
-// MarcaContainer.js
 import React, { Fragment, useEffect, useState } from "react";
 import { ProgressSpinner } from "primereact/progressspinner";
 import { DataTable } from "primereact/datatable";
