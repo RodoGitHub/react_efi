@@ -1,3 +1,4 @@
+// MarcaView.js
 import React, { Fragment, useEffect, useState } from "react";
 import { ProgressSpinner } from "primereact/progressspinner";
 import { DataTable } from "primereact/datatable";
@@ -14,7 +15,6 @@ const MarcaView = ({ data, loadingData }) => {
     const [message, setMessage] = useState("");
     const [updatedMarcaData, setUpdatedMarcaData] = useState({
         nombre: "",
-        activo: true,
         marca_id: null
     });
 
@@ -31,8 +31,6 @@ const MarcaView = ({ data, loadingData }) => {
             .min(3, 'El nombre de la marca debe tener al menos 3 caracteres')
             .max(255, 'El nombre de la marca no debe exceder los 255 caracteres')
             .required('El nombre de la marca es requerido'),
-        activo: Yup.boolean()
-            .required('El estado de la marca es requerido')
     });
 
     const handleSubmit = async (values, { setSubmitting }) => {
@@ -114,7 +112,6 @@ const MarcaView = ({ data, loadingData }) => {
                     onClick={() => setUpdatedMarcaData({
                         marca_id: rowData.id,
                         nombre: rowData.nombre,
-                        activo: rowData.activo,
                     })}
                 />
                 <Button
@@ -160,19 +157,16 @@ const MarcaView = ({ data, loadingData }) => {
                                 <Field type="text" name="nombre" />
                                 <ErrorMessage name="nombre" component="div" style={{ color: "red" }} />
                             </div>
-                            <div>
-                                <label htmlFor="activo">Estado:</label>
-                                <Field as="select" name="activo">
-                                    <option value="true">Activa</option>
-                                    <option value="false">Inactiva</option>
-                                </Field>
-                                <ErrorMessage name="activo" component="div" style={{ color: "red" }} />
-                            </div>
                             <Button type="submit" label="Actualizar Marca" className="p-button-danger" disabled={isSubmitting} />
                         </Form>
                     )}
                 </Formik>
             </div>
+        </Fragment>
+    );
+};
+
+export default MarcaView;
         </Fragment>
     );
 };
