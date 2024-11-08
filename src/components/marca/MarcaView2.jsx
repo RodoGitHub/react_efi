@@ -98,10 +98,6 @@ const MarcaView = ({ data, loadingData }) => {
         }
     };
 
-    const bodyMarcaStatus = (rowData) => {
-        return rowData.activo ? <span>Activa</span> : <span>Inactiva</span>;
-    };
-
     const bodyActions = (rowData) => {
         return (
             <div>
@@ -130,7 +126,6 @@ const MarcaView = ({ data, loadingData }) => {
             ) : (
                 <DataTable value={activeMaras} tableStyle={{ minWidth: "50rem" }}>
                     <Column field="nombre" header="Nombre" />
-                    <Column body={bodyMarcaStatus} header="Estado" />
                     <Column body={bodyActions} header="Acciones" />
                 </DataTable>
             )}
@@ -161,11 +156,6 @@ const MarcaView = ({ data, loadingData }) => {
                     )}
                 </Formik>
             </div>
-        </Fragment>
-    );
-};
-
-export default MarcaView;
         </Fragment>
     );
 };
