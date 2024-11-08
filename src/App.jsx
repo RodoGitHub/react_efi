@@ -2,12 +2,12 @@ import { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import './App.css';
 import UserContainer from './components/users/UserContainer';
+import MarcaContainer from './components/marca/MarcaContainer';
 import { Menubar } from 'primereact/menubar';
 import Home from './components/home';
 import LoginUser from './components/users/LoginUser'; 
 import CreateUser from './components/users/CreateUser';
 import CreateMarca from './components/marca/CreateMarca';
-import MarcaView from './components/marca/MarcaView';
 import Bienvenida from './components/Bienvenida';
 
 function App() {
@@ -56,7 +56,7 @@ function App() {
             <Route path="/usuarios" element={<UserContainer />} />
             <Route path="/nuevo-usuario" element={<CreateUser />} />
             <Route path="/nueva-marca" element={<CreateMarca />} />
-            <Route path="/lista-marca" element={<MarcaView />} />
+            <Route path="/lista-marca" element={<MarcaContainer />} />
             <Route path="/inicio-sesion" element={<LoginUser />} />
             <Route path="/bienvenida" element={<Bienvenida />} />
           </Routes>
